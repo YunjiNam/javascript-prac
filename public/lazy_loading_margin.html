@@ -1,0 +1,117 @@
+<!-- image lazy loading 실습 : https://helloinyong.tistory.com/297 -->
+<!-- 이미지 로딩을 위한 버퍼 시간 추가 -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      img {
+        background: #f1f1fa;
+        width: 400px;
+        height: 300px;
+        display: block;
+        margin: 10px auto;
+        border: 0;
+      }
+
+      #container {
+        height: 420px;
+        overflow-y: scroll;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <img src="https://ik.imagekit.io/demo/img/image1.jpeg?tr=w-400,h-300" />
+      <img src="https://ik.imagekit.io/demo/img/image2.jpeg?tr=w-400,h-300" />
+      <img src="https://ik.imagekit.io/demo/img/image3.jpg?tr=w-400,h-300" />
+      <img
+        class="lazy"
+        data-src="https://ik.imagekit.io/demo/img/image4.jpeg?tr=w-400,h-300"
+      />
+      <img
+        class="lazy"
+        data-src="https://ik.imagekit.io/demo/img/image5.jpeg?tr=w-400,h-300"
+      />
+      <img
+        class="lazy"
+        data-src="https://ik.imagekit.io/demo/img/image6.jpeg?tr=w-400,h-300"
+      />
+      <img
+        class="lazy"
+        data-src="https://ik.imagekit.io/demo/img/image7.jpeg?tr=w-400,h-300"
+      />
+      <img
+        class="lazy"
+        data-src="https://ik.imagekit.io/demo/img/image8.jpeg?tr=w-400,h-300"
+      />
+      <img
+        class="lazy"
+        data-src="https://ik.imagekit.io/demo/img/image9.jpeg?tr=w-400,h-300"
+      />
+      <img
+        class="lazy"
+        data-src="https://ik.imagekit.io/demo/img/image10.jpeg?tr=w-400,h-300"
+      />
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        let lazyloadImages;
+
+        if ("IntersectionObserver" in window) {
+          lazyloadImages = document.querySelectorAll(".lazy");
+
+          let imageObserver = new IntersectionObserver(
+            (entries, observer) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                  let image = entry.target;
+                  image.src = image.dataset.src;
+                  image.classList.remove("lazy");
+                  imageObserver.unobserve(image);
+                }
+              });
+            },
+            {
+              root: document.querySelector("#container"),
+              rootMargin: "0px 0px 500px 0px",
+            }
+          );
+
+          lazyloadImages.forEach((image) => {
+            imageObserver.observe(image);
+          });
+        } else {
+          // IntersectionObserver 를 지원하지 않는 경우
+          let lazyloadThrottleTimeout;
+          lazyloadImages = document.querySelectorAll(".lazy");
+
+          function lazyload() {
+            if (lazyloadThrottleTimeout) {
+              clearTimeout(lazyloadThrottleTimeout);
+            }
+
+            lazyloadThrottleTimeout = setTimeout(() => {
+              let scrollTop = window.pageYOffset;
+              lazyloadImages.forEach((img) => {
+                if (img.offsetTop < window.innerHeight + scrollTop + 500) {
+                  img.src = img.dataset.src;
+                  img.classList.remove("lazy");
+                }
+              });
+              if (lazyloadImages.length == 0) {
+                document.removeEventListener("scroll", lazyload);
+                window.removeEventListener("resize", lazyload);
+                window.removeEventListener("orientationChange", lazyload);
+              }
+            }, 20);
+          }
+
+          document.addEventListener("scroll", lazyload);
+          window.addEventListener("resize", lazyload);
+          window.addEventListener("orientationChange", lazyload);
+        }
+      });
+    </script>
+  </body>
+</html>
