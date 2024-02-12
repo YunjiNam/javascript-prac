@@ -1,0 +1,83 @@
+<!-- image lazy loading 실습 : https://helloinyong.tistory.com/297 -->
+<!-- 자바스크립트 이벤트를 이용하여 image load 를 일으키는 방법 -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      img {
+        background: #f1f1fa;
+        width: 400px;
+        height: 300px;
+        display: block;
+        margin: 10px auto;
+        border: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 유저 사용성을 위해 상단 세개의 이미지는 미리 로드 -->
+    <img src="https://ik.imagekit.io/demo/img/image1.jpeg?tr=w-400,h-300" />
+    <img src="https://ik.imagekit.io/demo/img/image2.jpeg?tr=w-400,h-300" />
+    <img src="https://ik.imagekit.io/demo/img/image3.jpg?tr=w-400,h-300" />
+    <img
+      class="lazy"
+      data-src="https://ik.imagekit.io/demo/img/image4.jpeg?tr=w-400,h-300"
+    />
+    <img
+      class="lazy"
+      data-src="https://ik.imagekit.io/demo/img/image5.jpeg?tr=w-400,h-300"
+    />
+    <img
+      class="lazy"
+      data-src="https://ik.imagekit.io/demo/img/image6.jpeg?tr=w-400,h-300"
+    />
+    <img
+      class="lazy"
+      data-src="https://ik.imagekit.io/demo/img/image7.jpeg?tr=w-400,h-300"
+    />
+    <img
+      class="lazy"
+      data-src="https://ik.imagekit.io/demo/img/image8.jpeg?tr=w-400,h-300"
+    />
+    <img
+      class="lazy"
+      data-src="https://ik.imagekit.io/demo/img/image9.jpeg?tr=w-400,h-300"
+    />
+    <img
+      class="lazy"
+      data-src="https://ik.imagekit.io/demo/img/image10.jpeg?tr=w-400,h-300"
+    />
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        let lazyloadImages = document.querySelectorAll("img.lazy");
+        let lazyloadThrottleTimeout;
+        function lazyload() {
+          if (lazyloadThrottleTimeout) {
+            clearTimeout(lazyloadThrottleTimeout);
+          }
+          lazyloadThrottleTimeout = setTimeout(() => {
+            let scrollTop = window.pageYOffset;
+            // window.pageYOffset 수직으로 얼마나 스크롤되었는지 나타내는 값
+            lazyloadImages.forEach((img) => {
+              // offsetTop 부모 요소 안에서 요소의 위치
+              if (img.offsetTop < window.innerHeight + scrollTop) {
+                //  img 의 위치가 수직 스크롤 값과 윈도우 창 크기 값을 더한 것보다 작으면 화면 안에 들어온다는 의미이기 때문에 src 에 값을 할당한다.
+                img.src = img.dataset.src;
+                img.classList.remove("lazy");
+              }
+            });
+            if (lazyloadImages.length == 0) {
+              document.removeEventListener("scroll", lazyload);
+              window.removeEventListener("resize", lazyload);
+              window.removeEventListener("orientationChange", lazyload);
+            }
+          }, 20);
+        }
+
+        document.addEventListener("scroll", lazyload);
+        window.addEventListener("resize", lazyload);
+        window.addEventListener("orientationChange", lazyload);
+      });
+    </script>
+  </body>
+</html>
